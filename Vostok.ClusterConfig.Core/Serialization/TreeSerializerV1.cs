@@ -215,7 +215,20 @@ namespace Vostok.ClusterConfig.Core.Serialization
         }
 
         private static ArrayNode DeserializeArrayNode(string name, IBinaryReader reader)
-            => new ArrayNode(name, reader.ReadArray(r => DeserializeValueNode(null, r)));
+        {
+            var childrenCount = reader.ReadInt32();
+            var children = new List<ISettingsNode>(childrenCount);
+
+            for (var i = 0; i < childrenCount; i++)
+            {
+                if (reader.ReadByte() != ValueNodeType)
+                    throw new InvalidOperationException("Serialized tree contains an ArrayNode with children not being ValueNodes.");
+
+                children.Add(DeserializeValueNode(i.ToString(), reader));
+            }
+
+            return new ArrayNode(name, children);
+        }
 
         #endregion
 

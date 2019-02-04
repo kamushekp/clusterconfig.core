@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
+using Vostok.ClusterConfig.Client.Abstractions;
 using Vostok.ClusterConfig.Core.Serialization;
 using Vostok.Commons.Binary;
-using Vostok.Configuration.Abstractions.Merging;
 using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Tests.Serialization
@@ -19,62 +20,169 @@ namespace Vostok.ClusterConfig.Core.Tests.Serialization
         public void TestSetup()
         {
             serializer = new TreeSerializerV1();
+
+            tree = new TreeBuilder()
+                .Add("plain-value", "value1")
+                .Add("plain-array", new [] {"1", "2"})
+
+                .Add("foo/bar/baz", "3")
+                .Add("foo/bar/baz2", "4")
+                .Add("foo/bar/baz3", "5")
+
+                .Add("foo/bar", new [] {"bar1", "bar2"})
+                .Add("foo", Guid.NewGuid().ToString())
+
+                .Add("one/two", "three")
+                .Add("one/three", "five")
+                .Add("one/three/four", string.Empty)
+
+                .Build();
         }
 
         [Test]
-        public void Test()
+        public void Should_correctly_serialize_and_deserialize_a_complex_tree()
         {
-            AddToTree("foo/bar/baz/key1", "value1");
-            AddToTree("foo/bar/baz/key2", "value2");
-
-            AddToTree("foo/ban/baz/key1", "value1");
-            AddToTree("foo/ban/baz/key2", "value2");
-
-            Serialize(out var reader);
-
-            var node = serializer.Deserialize(reader, new[] {"foo", "ban"});
-
-            node.Should().Be(tree.ScopeTo("foo", "ban"));
+            TestSerialization();
         }
 
-        private void Serialize(out IBinaryReader reader)
+        [Test]
+        public void Should_correctly_serialize_and_deserialize_a_tree_consisting_from_empty_object_nodes()
+        {
+            tree = new ObjectNode(null, new [] {new ObjectNode("foo") as ISettingsNode });
+
+            TestSerialization();
+        }
+
+        [TestCase("plain-value")]
+        [TestCase("plain-array")]
+        [TestCase("foo")]
+        [TestCase("foo/bar")]
+        [TestCase("foo/bar/baz")]
+        [TestCase("foo/bar/baz2")]
+        [TestCase("foo/bar/baz3")]
+        [TestCase("one")]
+        [TestCase("one/two")]
+        [TestCase("one/three")]
+        [TestCase("one/three/four")]
+        public void Navigation_should_deserialize_a_subtree_located_under_existing_path(string path)
+        {
+            TestNavigation(path);
+        }
+
+        [TestCase("PLAIN-VALUE")]
+        [TestCase("Plain-Array")]
+        [TestCase("Foo")]
+        [TestCase("FOO/bar")]
+        [TestCase("foo/Bar/BAZ")]
+        public void Navigation_should_be_case_insensitive(string path)
+        {
+            TestNavigation(path);
+        }
+
+        [TestCase("non/existing/bullshit")]
+        [TestCase("123/plain-value")]
+        [TestCase("123/plain-array")]
+        [TestCase("foo/bar/baz/whatever")]
+        [TestCase("foo/bar/baz4")]
+        [TestCase("")]
+        public void Navigation_should_fail_to_find_a_subtree_located_under_non_existing_path(string path)
+        {
+            TestNavigation(path);
+        }
+
+        [TestCase("plain-value/value1")]
+        [TestCase("foo/bar/baz/3")]
+        public void Navigation_should_fail_to_find_a_subtree_located_under_a_path_ending_in_a_value_node(string path)
+        {
+            TestNavigation(path);
+        }
+
+        [TestCase("plain-array/value1")]
+        [TestCase("foo/bar/array")]
+        public void Navigation_should_fail_to_find_a_subtree_located_under_a_path_ending_in_an_array_node(string path)
+        {
+            TestNavigation(path);
+        }
+
+        [Test]
+        public void Should_fail_on_a_null_argument()
+        {
+            tree = null;
+
+            TestFailure<ArgumentNullException>();
+        }
+
+        [Test]
+        public void Should_fail_on_nested_arrays()
+        {
+            tree = new ArrayNode("a1", new [] {new ArrayNode("a2", new List<ISettingsNode>()) });
+
+            TestFailure<InvalidOperationException>();
+        }
+
+        [Test]
+        public void Should_fail_on_arrays_with_nested_objects()
+        {
+            tree = new ArrayNode("a1", new[] { new ObjectNode("obj") });
+
+            TestFailure<InvalidOperationException>();
+        }
+
+        [Test]
+        public void Should_fail_on_unknown_node_types()
+        {
+            tree = Substitute.For<ISettingsNode>();
+
+            TestFailure<InvalidOperationException>();
+        }
+
+        private void TestSerialization()
         {
             var writer = new BinaryBufferWriter(64);
 
-            writer.Write(Guid.NewGuid()); // garbage
+            writer.Write(Guid.NewGuid());
 
             serializer.Serialize(tree, writer);
 
-            reader = new BinaryBufferReader(writer.Buffer, 16);
+            var reader = new BinaryBufferReader(writer.Buffer, 16);
+
+            var deserializedTree = serializer.Deserialize(reader);
+
+            deserializedTree.Should().Be(tree);
         }
 
-        private void AddToTree(string path, string value)
-            => AddLeafNode(path, name => new ValueNode(name, value));
-
-        private void AddToTree(string path, string[] values)
-            => AddLeafNode(path, name => new ArrayNode(name, values.Select(v => new ValueNode(null, v)).ToArray()));
-
-        private void AddLeafNode(string path, Func<string, ISettingsNode> nodeFactory)
+        private void TestNavigation(ClusterConfigPath path)
         {
-            var segments = path.Split('/');
-            if (segments.Length == 0)
-                return;
+            var writer = new BinaryBufferWriter(64);
 
-            Array.Reverse(segments);
+            writer.Write(Guid.NewGuid());
 
-            var node = nodeFactory(segments.First());
+            serializer.Serialize(tree, writer);
 
-            foreach (var segment in segments.Skip(1))
+            var reader = new BinaryBufferReader(writer.Buffer, 16);
+
+            var deserializedTree = serializer.Deserialize(reader, path.Segments);
+
+            deserializedTree.Should().Be(tree.ScopeTo(path.Segments));
+        }
+
+        private void TestFailure<TException>()
+            where TException : Exception
+        {
+            try
             {
-                node = new ObjectNode(segment, new[] { node });
+                TestSerialization();
+            }
+            catch (Exception error)
+            {
+                error.Should().BeOfType<TException>();
+
+                Console.Out.WriteLine(error);
+
+                return;
             }
 
-            node = new ObjectNode(null, new[] { node });
-
-            AddToTree(node);
+            Assert.Fail($"Expected an error of type '{typeof(TException).Name}'.");
         }
-
-        private void AddToTree(ISettingsNode node)
-            => tree = SettingsNodeMerger.Merge(tree, node, SettingsMergeOptions.Default);
     }
 }

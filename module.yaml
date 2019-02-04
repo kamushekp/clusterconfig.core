@@ -4,7 +4,7 @@ src:
     configuration: None
 
   deps:
-    - vostok.commons.binary
+    - vostok.commons.binary/src
     - vostok.configuration.abstractions
 
 notests *default:
@@ -19,10 +19,14 @@ notests *default:
 
   deps:
     - vostok.devtools
-    - vostok.commons.binary
+    - vostok.commons.binary/src
     - vostok.configuration.abstractions
 
 full-build > notests:
   build:
     target: Vostok.ClusterConfig.Core.sln
     configuration: Release
+
+  deps:
+    - vostok.configuration.sources
+    - vostok.clusterconfig.client.abstractions

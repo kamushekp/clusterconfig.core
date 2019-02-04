@@ -5,6 +5,7 @@ src:
 
   deps:
     - vostok.commons.binary
+    - vostok.configuration.abstractions
 
 notests *default:
   build:
@@ -19,6 +20,7 @@ notests *default:
   deps:
     - vostok.devtools
     - vostok.commons.binary
+    - vostok.configuration.abstractions
 
 full-build > notests:
   build:

@@ -5,6 +5,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Vostok.ClusterConfig.Client.Abstractions;
 using Vostok.ClusterConfig.Core.Serialization;
+using Vostok.ClusterConfig.Core.Tests.Helpers;
 using Vostok.Commons.Binary;
 using Vostok.Configuration.Abstractions.SettingsTree;
 

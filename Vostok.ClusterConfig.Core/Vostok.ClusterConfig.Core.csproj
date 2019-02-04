@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  
+  <Import Project="..\..\vostok.devtools\library-common-props\Main-Project.props" />
+  <Import Project="..\..\vostok.devtools\git-commit-to-assembly-title\Vostok.Tools.GitCommit2AssemblyTitle.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Configurations>Debug;Release</Configurations>
+    <LangVersion>7.2</LangVersion>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <VersionPrefix>0.0.1</VersionPrefix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>Vostok.ClusterConfig.Core</Title>
+    <Description>A source library with common code for ClusterConfig client and server (serialization, parsers).</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageProjectUrl>https://github.com/vostok/clusterconfig.core</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/vostok/clusterconfig.core/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>vostok vostok.clusterconfig</PackageTags>
+    <RepositoryUrl>https://github.com/vostok/clusterconfig.core</RepositoryUrl>
+  </PropertyGroup>
+
+  <Import Project="..\..\vostok.commons.binary\BinaryBufferReader.props" />
+  <Import Project="..\..\vostok.commons.binary\BinaryBufferWriter.props" />
+
+</Project>

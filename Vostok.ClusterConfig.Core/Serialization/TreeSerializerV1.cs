@@ -55,15 +55,15 @@ namespace Vostok.ClusterConfig.Core.Serialization
             {
                 case ObjectNode objectNode:
                     Serialize(objectNode, writer);
-                    break;
+                    return;
 
                 case ArrayNode arrayNode:
                     Serialize(arrayNode, writer);
-                    break;
+                    return;
 
                 case ValueNode valueNode:
                     Serialize(valueNode, writer);
-                    break;
+                    return;
             }
 
             throw new InvalidOperationException($"Serialized tree contains a node of unknown type '{tree.GetType().Name}'.");
@@ -163,6 +163,10 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
             foreach (var segment in path)
             {
+                var nodeType = reader.ReadByte();
+                if (nodeType != ObjectNodeType)
+                    return false;
+
                 var indexLength = reader.ReadInt32();
                 var childrenStartingPosition = reader.Position + indexLength;
                 var childrenCount = reader.ReadInt32();

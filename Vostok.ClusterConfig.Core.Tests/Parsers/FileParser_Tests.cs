@@ -95,13 +95,13 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
         [Test]
         public void Should_pass_lowercased_file_name_to_parser()
         {
-            file = "UPPERCASE";
+            file = "UPPERCASE.EXE";
 
             WriteFile(1);
 
             Parse();
 
-            defaultParser.Received(1).Parse("uppercase", Arg.Any<IFileContent>());
+            defaultParser.Received(1).Parse("uppercase.exe", Arg.Any<IFileContent>());
         }
 
         [Test]

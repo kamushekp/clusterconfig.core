@@ -55,6 +55,14 @@ namespace Vostok.ClusterConfig.Core.Parsers
             return true;
         }
 
+        private static bool ShouldBeProcessed(DirectoryInfo directoryInfo)
+        {
+            if (directoryInfo.Name.StartsWith("."))
+                return false;
+
+            return true;
+        }
+
         private IEnumerable<ISettingsNode> ParseDirectory(DirectoryInfo directory)
         {
             if (!directory.Exists)
@@ -67,7 +75,7 @@ namespace Vostok.ClusterConfig.Core.Parsers
                     yield return fileTree;
             }
 
-            foreach (var subDirectory in GetDirectoriesSafe(directory))
+            foreach (var subDirectory in GetDirectoriesSafe(directory).Where(ShouldBeProcessed))
             {
                 var subDirectoryNode = new ObjectNode(subDirectory.Name.ToLower(), ParseDirectory(subDirectory));
                 if (subDirectoryNode.ChildrenCount > 0)

@@ -43,7 +43,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
         }
 
         [Test]
-        public void Should_add_a_nested_node_for_each_file_()
+        public void Should_add_a_nested_node_for_each_file()
         {
             File.Create(Path.Combine(directory.Path, "foo.txt"));
             File.Create(Path.Combine(directory.Path, "foo-bar.txt"));
@@ -125,6 +125,18 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
             tree.Children.Should().HaveCount(1);
 
             tree["SubDir1"]["SubDir2"]["foo.txt"].Should().NotBeNull();
+        }
+
+        [Test]
+        public void Should_skip_subdirectories_with_names_starting_with_a_dot()
+        {
+            Directory.CreateDirectory(Path.Combine(directory.Path, ".git"));
+
+            File.Create(Path.Combine(directory.Path, ".git", "index"));
+
+            var tree = zoneParser.Parse(directory.Info);
+
+            tree.Children.Should().BeEmpty();
         }
     }
 }

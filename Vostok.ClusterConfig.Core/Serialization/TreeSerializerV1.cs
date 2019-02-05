@@ -208,7 +208,7 @@ namespace Vostok.ClusterConfig.Core.Serialization
             {
                 if (child is ValueNode valueNode)
                 {
-                    Serialize(valueNode, writer);
+                    writer.WriteWithLength(valueNode.Value ?? string.Empty);
                 }
                 else throw new InvalidOperationException("Serialized tree contains an ArrayNode with children not being ValueNodes.");
             }
@@ -221,9 +221,6 @@ namespace Vostok.ClusterConfig.Core.Serialization
 
             for (var i = 0; i < childrenCount; i++)
             {
-                if (reader.ReadByte() != ValueNodeType)
-                    throw new InvalidOperationException("Serialized tree contains an ArrayNode with children not being ValueNodes.");
-
                 children.Add(DeserializeValueNode(i.ToString(), reader));
             }
 

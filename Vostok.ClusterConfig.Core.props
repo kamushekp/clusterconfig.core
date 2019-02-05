@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Serialization\*.cs" LinkBase="Core\Serialization" />
+    <Compile Include="$(MSBuildThisFileDirectory)\Vostok.ClusterConfig.Core\Parsers\**\*.cs" LinkBase="Core\Parsers" />
+  </ItemGroup>
+</Project>

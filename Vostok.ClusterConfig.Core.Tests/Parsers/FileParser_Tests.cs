@@ -23,8 +23,8 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
         private IFileContentParser defaultParser;
         private IFileContentParser customParser;
 
-        private ISettingsNode defaultResult;
-        private ISettingsNode customResult;
+        private ObjectNode defaultResult;
+        private ObjectNode customResult;
 
         private string file;
 
@@ -36,10 +36,10 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers
             file = Guid.NewGuid().ToString();
 
             defaultParser = Substitute.For<IFileContentParser>();
-            defaultParser.Parse(default, default).ReturnsForAnyArgs(defaultResult = Substitute.For<ISettingsNode>());
+            defaultParser.Parse(default, default).ReturnsForAnyArgs(defaultResult = new ObjectNode("default"));
 
             customParser = Substitute.For<IFileContentParser>();
-            customParser.Parse(default, default).ReturnsForAnyArgs(customResult = Substitute.For<ISettingsNode>());
+            customParser.Parse(default, default).ReturnsForAnyArgs(customResult = new ObjectNode("custom"));
 
             settings = new FileParserSettings
             {

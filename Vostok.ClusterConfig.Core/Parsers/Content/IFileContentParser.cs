@@ -6,6 +6,6 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
     internal interface IFileContentParser
     {
         [CanBeNull]
-        ISettingsNode Parse([NotNull] string name, [NotNull] IFileContent content);
+        ObjectNode Parse([NotNull] string name, [NotNull] IFileContent content);
     }
 }

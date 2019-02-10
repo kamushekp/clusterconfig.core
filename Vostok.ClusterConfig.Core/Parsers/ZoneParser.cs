@@ -6,6 +6,13 @@ using Vostok.Configuration.Abstractions.SettingsTree;
 
 namespace Vostok.ClusterConfig.Core.Parsers
 {
+    // (iloktionov): Zone mapping to ISettingsNodes.
+    // 1. The zone itself corresponds to a root ObjectNode with null name.
+    // 2. Every subdirectory one the way to a file is an ObjectNode with corresponding name.
+    // 3. Every file is an ObjectNode with corresponding name. It can have two type of children:
+    //  3.1. Named: these are ValueNodes or ArrayNodes with names parsed from the file itself.
+    //  3.2. Unnamed: this can be either a ValueNode or ArrayNode stored under an empty key to represent file content.
+
     internal class ZoneParser : IZoneParser
     {
         private readonly IFileParser fileParser;
@@ -15,7 +22,7 @@ namespace Vostok.ClusterConfig.Core.Parsers
             this.fileParser = fileParser;
         }
 
-        public ISettingsNode Parse(DirectoryInfo directory)
+        public ObjectNode Parse(DirectoryInfo directory)
         {
             return new ObjectNode(null, ParseDirectory(directory));
         }

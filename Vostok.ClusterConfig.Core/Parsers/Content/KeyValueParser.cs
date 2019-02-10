@@ -15,7 +15,7 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
 
         private static readonly char[] ByteOrderMarks = { '\uFEFF' };
 
-        public ISettingsNode Parse(string name, IFileContent content)
+        public ObjectNode Parse(string name, IFileContent content)
         {
             var index = new Dictionary<string, List<string>>();
             
@@ -36,9 +36,6 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
                 }
                 else index[key] = new List<string> { value };
             }
-
-            if (index.Count == 1 && index.Keys.Single() == string.Empty)
-                return ConvertToNode(name, index.Values.Single());
 
             return new ObjectNode(name, index.Select(pair => ConvertToNode(pair.Key, pair.Value)));
         }

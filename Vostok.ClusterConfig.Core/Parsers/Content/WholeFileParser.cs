@@ -4,7 +4,7 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
 {
     internal class WholeFileParser : IFileContentParser
     {
-        public ISettingsNode Parse(string name, IFileContent content) 
-            => new ValueNode(name, content.AsString);
+        public ObjectNode Parse(string name, IFileContent content) 
+            => new ObjectNode(name, new [] { new ValueNode(string.Empty, content.AsString) });
     }
 }

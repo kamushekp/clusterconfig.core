@@ -13,7 +13,7 @@ namespace Vostok.ClusterConfig.Core.Parsers
             this.settings = settings;
         }
 
-        public ISettingsNode Parse(FileInfo file)
+        public ObjectNode Parse(FileInfo file)
         {
             try
             {

@@ -11,7 +11,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
     internal class WholeFileParser_Tests
     {
         [Test]
-        public void Should_return_whole_file_content_as_a_named_value_node()
+        public void Should_return_whole_file_content_as_an_object_node_with_unnamed_value_node()
         {
             var parser = new WholeFileParser();
 
@@ -23,9 +23,11 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
 
             var node = parser.Parse("foo", content);
 
-            node.Should().BeOfType<ValueNode>();
+            node.Should().BeOfType<ObjectNode>();
             node.Name.Should().Be("foo");
-            node.Value.Should().BeSameAs(text);
+            node.Children.Should().HaveCount(1);
+
+            node[string.Empty].Should().BeOfType<ValueNode>().Which.Value.Should().Be(text);
         }
     }
 }

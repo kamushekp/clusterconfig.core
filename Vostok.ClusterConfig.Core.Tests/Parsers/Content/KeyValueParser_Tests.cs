@@ -67,29 +67,41 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
         }
 
         [Test]
-        public void Should_return_a_value_node_if_text_consists_of_a_single_unkeyed_value()
+        public void Should_return_an_object_node_with_unnamed_value_node_if_text_consists_of_a_single_unkeyed_value()
         {
             contentBuilder.AppendLine("some-value");
 
-            var node = Parse().Should().BeOfType<ValueNode>().Which;
+            var node = Parse().Should().BeOfType<ObjectNode>().Which;
 
             node.Name.Should().Be(fileName);
-            node.Value.Should().Be("some-value");
+
+            var value = node.Children.Should().ContainSingle()
+                .Which.Should().BeOfType<ValueNode>()
+                .Which;
+
+            value.Name.Should().Be(string.Empty);
+            value.Value.Should().Be("some-value");
         }
 
         [Test]
-        public void Should_return_an_array_node_with_correct_order_if_text_consists_of_multiple_unkeyed_values()
+        public void Should_return_an_object_node_with_unnamed_array_node_with_correct_order_if_text_consists_of_multiple_unkeyed_values()
         {
             var values = Enumerable.Range(0, 1000).Select(_ => Guid.NewGuid().ToString()).ToArray();
 
             foreach (var value in values)
                 contentBuilder.AppendLine(value);
 
-            var node = Parse().Should().BeOfType<ArrayNode>().Which;
+            var node = Parse().Should().BeOfType<ObjectNode>().Which;
 
             node.Name.Should().Be(fileName);
-            node.Children.Should().OnlyContain(child => child is ValueNode);
-            node.Children.Select(child => child.Value).Should().Equal(values);
+
+            var array = node.Children.Should().ContainSingle()
+                .Which.Should().BeOfType<ArrayNode>()
+                .Which;
+
+            array.Name.Should().Be(string.Empty);
+            array.Children.Should().OnlyContain(child => child is ValueNode);
+            array.Children.Select(child => child.Value).Should().Equal(values);
         }
 
         [Test]

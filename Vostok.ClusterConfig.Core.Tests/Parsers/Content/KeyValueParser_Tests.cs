@@ -32,16 +32,16 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
         }
 
         [Test]
-        public void Should_return_an_empty_object_node_for_empty_text()
+        public void Should_return_an_object_node_with_empty_value_for_empty_text()
         {
             var node = Parse().Should().BeOfType<ObjectNode>().Which;
 
             node.Name.Should().Be(fileName);
-            node.Children.Should().BeEmpty();
+            node.Children.Should().ContainSingle().Which.Should().Be(new ValueNode(string.Empty, string.Empty));
         }
 
         [Test]
-        public void Should_return_an_empty_object_node_for_text_consisting_of_blank_lines()
+        public void Should_return_an_object_node_with_empty_value_for_text_consisting_of_blank_lines()
         {
             contentBuilder.AppendLine("  ");
             contentBuilder.AppendLine();
@@ -50,11 +50,11 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
             var node = Parse().Should().BeOfType<ObjectNode>().Which;
 
             node.Name.Should().Be(fileName);
-            node.Children.Should().BeEmpty();
+            node.Children.Should().ContainSingle().Which.Should().Be(new ValueNode(string.Empty, string.Empty));
         }
 
         [Test]
-        public void Should_return_an_empty_object_node_for_text_consisting_of_comments()
+        public void Should_return_an_object_node_with_empty_value_for_text_consisting_of_comments()
         {
             contentBuilder.AppendLine("# comment 1");
             contentBuilder.AppendLine("  # comment 2");
@@ -63,7 +63,7 @@ namespace Vostok.ClusterConfig.Core.Tests.Parsers.Content
             var node = Parse().Should().BeOfType<ObjectNode>().Which;
 
             node.Name.Should().Be(fileName);
-            node.Children.Should().BeEmpty();
+            node.Children.Should().ContainSingle().Which.Should().Be(new ValueNode(string.Empty, string.Empty));
         }
 
         [Test]

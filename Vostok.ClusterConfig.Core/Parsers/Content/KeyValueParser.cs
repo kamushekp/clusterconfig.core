@@ -37,6 +37,9 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
                 else index[key] = new List<string> { value };
             }
 
+            if (index.Count == 0)
+                index.Add(string.Empty, new List<string> { string.Empty });
+
             return new ObjectNode(name, index.Select(pair => ConvertToNode(pair.Key, pair.Value)));
         }
 

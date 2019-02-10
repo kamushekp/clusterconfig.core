@@ -13,6 +13,8 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
 
         private static readonly string[] Separators = {":=", "="};
 
+        private static readonly char[] ByteOrderMarks = { '\uFEFF' };
+
         public ISettingsNode Parse(string name, IFileContent content)
         {
             var index = new Dictionary<string, List<string>>();
@@ -21,7 +23,7 @@ namespace Vostok.ClusterConfig.Core.Parsers.Content
 
             while (!reader.EndOfStream)
             {
-                var line = reader.ReadLine()?.Trim();
+                var line = reader.ReadLine()?.Trim(ByteOrderMarks)?.Trim();
 
                 if (string.IsNullOrEmpty(line) || line.StartsWith(CommentToken))
                     continue;

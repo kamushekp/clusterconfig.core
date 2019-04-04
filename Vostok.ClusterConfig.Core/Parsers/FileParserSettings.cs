@@ -9,12 +9,12 @@ namespace Vostok.ClusterConfig.Core.Parsers
 
         public Dictionary<string, IFileContentParser> CustomParsers { get; set; } = new Dictionary<string, IFileContentParser>
         {
-            [".example"] = new NullParser(),
-            [".xml"] = new WholeFileParser(),
-            [".xslt"] = new WholeFileParser(),
-            [".json"] = new WholeFileParser(),
-            [".cs"] = new WholeFileParser(),
-            [".cer"] = new Base64Parser()
+            [".example"] = NullParser.Instance,
+            [".xml"] = WholeFileParser.Instance,
+            [".xslt"] = WholeFileParser.Instance,
+            [".json"] = WholeFileParser.Instance,
+            [".cs"] = WholeFileParser.Instance,
+            [".cer"] = Base64Parser.Instance
         };
 
         public int MaximumFileSize { get; set; } = 1024 * 1024;

@@ -14,7 +14,10 @@ namespace Vostok.ClusterConfig.Core.Parsers
             [".xslt"] = WholeFileParser.Instance,
             [".json"] = WholeFileParser.Instance,
             [".cs"] = WholeFileParser.Instance,
-            [".cer"] = Base64Parser.Instance
+            [".cer"] = Base64Parser.Instance,
+            [".yml"] = WholeFileParser.Instance,
+            [".yaml"] = WholeFileParser.Instance,
+            [".toml"] = WholeFileParser.Instance
         };
 
         public int MaximumFileSize { get; set; } = 1024 * 1024;
